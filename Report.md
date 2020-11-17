@@ -2,16 +2,7 @@
 
 ###### 姓名：马嘉骥	学号：2018211149	班级：2018211303
 
-# 实验一	学堂在线网
-
-## 实验目标
-
-* 爬取学堂在线的合作院校页面内容。
-* 将开课院校的学校名称和对应的课程数量，保存到一个 json 文件中。
-
-
-
-# 实验二	链家网
+# 链家网
 
 ## 实验目标
 
@@ -297,3 +288,113 @@ C:\Users\Ridd\PycharmProjects\venv\Scripts\python.exe G:/Courseware/Python程序
 Process finished with exit code 0
 ```
 
+
+
+# 学堂在线网
+
+## 实验目标
+
+* 爬取学堂在线的合作院校页面内容。
+* 将开课院校的学校名称和对应的课程数量，保存到一个 json 文件中。
+
+## 系统环境
+
+* Windows 10 2004、macOS 10.15
+* PyCharm 2020
+* Python 3.7、Requests 2.25.0
+
+## 项目结构
+
+* main.py
+* xuetangx.csv
+
+## 代码实现
+
+```python
+import codecs
+import csv
+import json
+
+import requests
+
+payload = {"query": "", "chief_org": [], "classify": ["1"], "selling_type": [], "status": [], "appid": 10000}
+header = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/86.0.4240.198 Safari/537.36",
+    "x-client": "web",
+    "xtbz": "xt"
+}
+base_url = "https://www.xuetangx.com/api/v1/lms/get_product_list/?page="
+
+
+def post(page_num: int) -> dict:
+    x = requests.post(base_url + str(page_num), headers=header, data=payload)
+    y = json.loads(x.text)
+    # print("post page"+str(page_num)+" ends")
+    return y
+
+
+def add2csv(json_obj: dict, csv_writer):
+    class_list = json_obj["data"]["product_list"]
+    for item in class_list:
+        name = item['name']
+        school = item["org"]['name']
+        count = item['count']
+        teacher_list = []
+        for teacher in item['teacher']:
+            teacher_list.append(teacher['name'])
+        content = [name, count, school, "、".join(teacher_list)]
+        csv_writer.writerow(content)
+        # print(content)
+
+
+def main():
+    total_page_num = 37
+    with codecs.open("xuetangx.csv", "w", encoding="utf-8") as csvf:
+        writer = csv.writer(csvf)
+        writer.writerow(["课程名称", "选课人数", "学校", "老师"])
+        for i in range(1, total_page_num + 1):
+            ret_json = post(i)
+            add2csv(ret_json, writer)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+
+
+## 运行结果
+
+* xuetangx.csv
+
+```
+课程名称,选课人数,学校,老师
+C++语言程序设计基础,424200,清华大学,郑莉、李超、徐明星
+数据结构(上),410783,清华大学,邓俊辉
+数据结构（下）,358574,清华大学,邓俊辉
+Java程序设计,195257,清华大学,郑莉
+操作系统,193059,清华大学,向勇、陈渝
+网络技术与应用,175781,中国人民解放军陆军工程大学,沈鑫剡、俞海英、李兴德、许继恒、钱万正、徐海斌、魏涛、宋以胜
+C++语言程序设计进阶,117467,清华大学,郑莉、李超、徐明星
+C程序设计案例教程（基础）,113433,中国农业大学,张莉
+C程序设计案例教程（进阶）,110253,中国农业大学,张莉
+数据挖掘：理论与算法,107925,清华大学,袁博
+大数据技术与应用,97955,清华大学,李军
+软件工程,93732,清华大学,刘强、刘璘
+计算机文化基础,83714,清华大学,李秀、姚瑞霞、安颖莲、全成斌
+程序设计基础,80793,清华大学,徐明星、王瑀屏、邬晓钧
+组合数学,74396,清华大学,马昱春
+大数据系统基础,74247,清华大学,王建民、徐葳、陈康、陈文光
+VC++面向对象与可视化程序设计（上）：Windows编程基础,69321,清华大学,黄维通
+VC++面向对象与可视化程序设计（下）：MFC编程基础,67921,清华大学,黄维通
+人工智能原理,63706,北京大学,王文敏
+大数据平台核心技术,62951,清华大学,武永卫、姚文辉、陶阳宇、冯骁、谢德军
+大学计算机教程,62258,中国农业大学,张莉、马钦
+Web前端攻城狮,57698,清华大学,刘强、吴亮、赵文博
+Office办公软件应用,57532,河北工业大学,史巧硕、朱怀忠、刘洪普、李娟
+汇编语言程序设计,55233,清华大学,张悠慧、翟季冬
+……
+略
+……
+```
