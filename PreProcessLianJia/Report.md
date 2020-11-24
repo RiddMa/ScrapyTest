@@ -1,6 +1,6 @@
 # Python数据预处理
 
-## 链家新房数据爬取预处理
+## Scrapy链家新房数据爬取预处理
 
 ### 目的
 
@@ -16,7 +16,7 @@
 ### 环境
 
 * Windows10 Pro 2004，macOS 10.15。
-* PyCharm，Python3.7
+* PyCharm，Python3.7，Scrapy 2.4.1
 
 ### 分析
 
@@ -329,8 +329,70 @@ K2十里春风,通州,通州其它,永乐店镇漷小路百菜玛工业园对面
 181.3000	513.0000	5254.5000	21000	52695	130000
 ```
 
+## Pandas北京空气质量数据处理
+
+## 目的
+
+* 计算北京空气质量数据：
+	* 汇总计算 PM 指数年平均值的变化情况
+	* 汇总计算 10-15 年 PM 指数和温度月平均数据的变化情况
+
+## 环境
+
+* Windows10 Pro 2004，macOS 10.15。
+* PyCharm，Python3.7，Pandas 1.1.4
+
+## 分析
 
 
 
+## 项目结构
 
-2223.0 496.62 449.991 78000 55800 49999
+* PreProcessPM25
+	* pm25-data-for-five-chinese-cities
+		* BeijingPM20100101_20151231.csv
+		* ChengduPM20100101_20151231.csv
+		* GuangzhouPM20100101_20151231.csv
+		* ShanghaiPM20100101_20151231.csv
+		* ShenyangPM20100101_20151231.csv
+	* PM25.py
+	* beijing.csv
+	* beijing_avg.csv
+
+## 源码
+
+```python
+import time
+
+import pandas as pd
+
+fileNameStr = './pm25-data-for-five-chinese-cities/BeijingPM20100101_20151231.csv'
+df = pd.read_csv(fileNameStr, encoding='utf-8')
+df.drop(df.columns[[range(10, 13)]], axis=1, inplace=True)
+df.drop(df.columns[[range(11, 15)]], axis=1, inplace=True)
+
+df.dropna(axis=0, how='all', subset=['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_US Post'], inplace=True)
+
+df.to_csv("beijing.csv")
+
+# avg
+start = time.time()
+df['sum'] = df[['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_US Post']].sum(axis=1)
+df['count'] = df[['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_US Post']].count(axis=1)
+df['avg'] = round(df['sum'] / df['count'], 2)
+end = time.time()
+
+# output
+df.to_csv("beijing_avg.csv")
+
+# avg by year
+print(df[['month', 'year', 'TEMP', 'avg']].groupby("year").mean())
+print(df[['month', 'year', 'TEMP', 'avg']].groupby('month').mean())
+for y in range(2010, 2016):
+    print("year:" + str(y) + "月平均pm和气温")
+    print(df.query('year=={}'.format(y)).groupby('month').mean())
+    print(df[['year', 'TEMP', 'month']].query('year=={}'.format(y)).groupby('month').mean())
+```
+
+## 运行结果
+
