@@ -331,22 +331,24 @@ K2十里春风,通州,通州其它,永乐店镇漷小路百菜玛工业园对面
 
 ## Pandas北京空气质量数据处理
 
-## 目的
+### 目的
 
 * 计算北京空气质量数据：
 	* 汇总计算 PM 指数年平均值的变化情况
 	* 汇总计算 10-15 年 PM 指数和温度月平均数据的变化情况
 
-## 环境
+### 环境
 
 * Windows10 Pro 2004，macOS 10.15。
 * PyCharm，Python3.7，Pandas 1.1.4
 
-## 分析
+### 分析
 
+* 使用 pandas 库：
 
+* 利用`read_csv()`读取文件，用`groupby()`将数据分组整合，用`mean()`方法计算平均值，用`to_csv()`方法将得到的结果输出到文件。pandas 的整体使用思路与 SQL 数据库类似。
 
-## 项目结构
+### 项目结构
 
 * PreProcessPM25
 	* pm25-data-for-five-chinese-cities
@@ -355,44 +357,137 @@ K2十里春风,通州,通州其它,永乐店镇漷小路百菜玛工业园对面
 		* GuangzhouPM20100101_20151231.csv
 		* ShanghaiPM20100101_20151231.csv
 		* ShenyangPM20100101_20151231.csv
-	* PM25.py
-	* beijing.csv
-	* beijing_avg.csv
+	* PM25_month.py
+	* PM25_year.py
+	* month_avg.csv
+	* year_avg.csv
 
-## 源码
+### 源码
+
+#### PM25_year.py
 
 ```python
-import time
-
 import pandas as pd
 
-fileNameStr = './pm25-data-for-five-chinese-cities/BeijingPM20100101_20151231.csv'
-df = pd.read_csv(fileNameStr, encoding='utf-8')
-df.drop(df.columns[[range(10, 13)]], axis=1, inplace=True)
-df.drop(df.columns[[range(11, 15)]], axis=1, inplace=True)
+# open file
+FileNameStr = './pm25-data-for-five-chinese-cities/BeijingPM20100101_20151231.csv'
+df = pd.read_csv(FileNameStr, encoding='utf-8', usecols=[1, 6, 7, 8, 9])
 
-df.dropna(axis=0, how='all', subset=['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_US Post'], inplace=True)
+# create avg row
+# mean(axis=1) to get avg row
+df['PM_avg'] = df.iloc[:, 1:5].mean(axis=1)
+# group by year, calculate average of PM. output to file
+df.groupby('year')['PM_avg'].mean().to_csv("year_avg.csv")
+# output to console
+print(df.groupby('year')['PM_avg'].mean())
+```
 
-df.to_csv("beijing.csv")
+#### PM25_month.py
 
-# avg
-start = time.time()
-df['sum'] = df[['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_US Post']].sum(axis=1)
-df['count'] = df[['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_US Post']].count(axis=1)
-df['avg'] = round(df['sum'] / df['count'], 2)
-end = time.time()
+```python
+import pandas as pd
 
-# output
-df.to_csv("beijing_avg.csv")
+# open file
+FileNameStr = './pm25-data-for-five-chinese-cities/BeijingPM20100101_20151231.csv'
+df = pd.read_csv(FileNameStr, encoding='utf-8', usecols=[1, 2, 6, 7, 8, 9])
 
-# avg by year
-print(df[['month', 'year', 'TEMP', 'avg']].groupby("year").mean())
-print(df[['month', 'year', 'TEMP', 'avg']].groupby('month').mean())
-for y in range(2010, 2016):
-    print("year:" + str(y) + "月平均pm和气温")
-    print(df.query('year=={}'.format(y)).groupby('month').mean())
-    print(df[['year', 'TEMP', 'month']].query('year=={}'.format(y)).groupby('month').mean())
+# create avg row
+# mean(axis=1) to get avg row
+df['PM_avg'] = df.iloc[:, 2:6].mean(axis=1)
+# group by year, calculate average of PM. output to file
+df.groupby(['year', 'month'])['PM_avg'].mean().to_csv("month_avg.csv")
+# output to console
+print(df.groupby(['year', 'month'])['PM_avg'].mean())
 ```
 
 ## 运行结果
 
+#### year_avg.csv 年平均 PM 指数变化
+
+```
+year,PM_avg
+2010,104.04572982326042
+2011,99.0932403834184
+2012,90.53876763535511
+2013,98.40266354428444
+2014,93.91770369524673
+2015,85.85894216133943
+```
+
+#### month_avg.csv 月平均 PM 指数变化。
+
+```
+year,month,PM_avg
+2010,1,90.40366972477064
+2010,2,97.23994038748137
+2010,3,94.04654442877292
+2010,4,80.0724233983287
+2010,5,87.0719131614654
+2010,6,109.03893805309734
+2010,7,123.4260752688172
+2010,8,97.68343195266272
+2010,9,122.79273504273505
+2010,10,118.78436657681941
+2010,11,138.38403614457832
+2010,12,97.1157469717362
+2011,1,44.87369985141159
+2011,2,150.29017857142858
+2011,3,57.99198717948718
+2011,4,91.72067039106145
+2011,5,65.10814606741573
+2011,6,108.79465541490858
+2011,7,107.38648648648649
+2011,8,103.7338003502627
+2011,9,94.96940194714882
+2011,10,145.5568181818182
+2011,11,109.43496503496503
+2011,12,108.72139973082099
+2012,1,118.92238805970149
+2012,2,84.44202898550725
+2012,3,96.47432432432433
+2012,4,87.83588317107093
+2012,5,90.96671490593343
+2012,6,96.63418079096046
+2012,7,80.64970930232558
+2012,8,81.1653290529695
+2012,9,59.95224719101124
+2012,10,94.95135135135135
+2012,11,87.43696275071633
+2012,12,109.18729641693811
+2013,1,183.19527027027036
+2013,2,113.56646825396813
+2013,3,114.57269265232975
+2013,4,63.04780092592594
+2013,5,89.14852150537635
+2013,6,111.3548611111111
+2013,7,74.93283917340521
+2013,8,67.92361111111111
+2013,9,85.7178240740741
+2013,10,102.20878136200719
+2013,11,85.1462962962963
+2013,12,90.31776433691755
+2014,1,107.9117383512545
+2014,2,160.5138888888889
+2014,3,103.18324372759857
+2014,4,92.16064814814811
+2014,5,64.95855734767025
+2014,6,59.15462962962963
+2014,7,91.7999551971326
+2014,8,65.66823687752354
+2014,9,68.23263888888889
+2014,10,135.26971326164866
+2014,11,106.3375
+2014,12,76.62253584229393
+2015,1,110.02273745519707
+2015,2,103.44556051587303
+2015,3,94.4834229390681
+2015,4,79.39699074074069
+2015,5,61.16756272401436
+2015,6,60.33240740740742
+2015,7,60.22950268817203
+2015,8,45.89605734767028
+2015,9,50.92476851851854
+2015,10,77.25784050179212
+2015,11,125.80312500000011
+2015,12,162.17898745519724
+```
