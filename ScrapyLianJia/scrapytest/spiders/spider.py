@@ -1,6 +1,6 @@
 import scrapy
-from scrapytest.items import BuptItem
-from scrapytest.items import LjItem
+from ScrapyLianJia.scrapytest.items import BuptItem
+from ScrapyLianJia.scrapytest.items import LjItem
 page = 3
 
 

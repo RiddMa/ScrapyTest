@@ -79,7 +79,7 @@ class LjItem(scrapy.Item):
 
 ```python
 import scrapy
-from scrapytest.items import LjItem
+from ScrapyLianJia.scrapytest.items import LjItem
 
 page = 3 # 爬取3页
 
