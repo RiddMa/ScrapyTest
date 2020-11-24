@@ -45,7 +45,7 @@ class PreProcessLianJiaPipeline:
         unitmid = unitPrice[int((int((len(unitPrice)) / 2) + int((len(unitPrice) + 1) / 2)) / 2)]
         print(totalmin, totalmid, totalmax, unitmin, unitmid, unitmax)
         with open("Price.txt", 'a+') as ptxt:
-            outstr = str(totalmin) + '\t' + str(totalmid) + '\t' + str(totalmax) + '\t' + str(unitmin) + '\t' + str(
-                unitmid) + '\t' + str(unitmax) + '\n'
+            outstr = "{:.4f}".format(totalmin) + '\t' + "{:.4f}".format(totalmid) + '\t' + "{:.4f}".format(
+                totalmax) + '\t' + str(unitmin) + '\t' + str(unitmid) + '\t' + str(unitmax) + '\n'
             ptxt.write(outstr)
         print(totalmin, totalmid, totalmax, unitmin, unitmid, unitmax)
