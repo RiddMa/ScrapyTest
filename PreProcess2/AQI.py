@@ -1,13 +1,5 @@
+import numpy as np
 import pandas as pd
-
-
-def out(df, file):
-    df = df[df['year'] == 2015]
-    bin = [0, 35, 75, 115, 150, 250, 350, 500]
-    df0 = df.groupby(["year", "month", "day"])
-    result = pd.cut(df0['ave'].mean(), bin)
-    print(file)
-    print(pd.value_counts(result))
 
 
 def toDf(fileName, lz):
@@ -16,13 +8,18 @@ def toDf(fileName, lz):
     df['sum'] = df[lz].sum(axis=1)
     df['count'] = df[lz].count(axis=1)
     df['ave'] = round(df['sum'] / df['count'], 2)
-    out(df, fileName)
+    df = df[df['year'] == 2015]
+    bin = [0, 50, 100, 150, 200, 300, 1000]
+    df0 = df.groupby(["year", "month", "day"])
+    result = pd.cut(df0['ave'].mean(), bin)
+    print(fileName)
+    print(pd.value_counts(result))
 
 
 def main():
-    lzBeijing = ['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_USPost']
+    lzBeijing = ['PM_Dongsi', 'PM_Dongsihuan', 'PM_Nongzhanguan', 'PM_US Post']
     lzChengdu = ['PM_Caotangsi', 'PM_Shahepu', 'PM_US Post']
-    lzGuangzhou = "PM_City Station,PM_5th Middle School,PM_USPost".split(',')
+    lzGuangzhou = "PM_City Station,PM_5th Middle School,PM_US Post".split(',')
     lzShanghai = "PM_Jingan,PM_US Post,PM_Xuhui".split(',')
     lzShengyang = "PM_Taiyuanjie,PM_US Post,PM_Xiaoheyan".split(',')
     dic = {
