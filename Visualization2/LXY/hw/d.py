@@ -10,7 +10,7 @@ import csv
 cities = '合肥市、芜湖市、蚌埠市、淮南市、马鞍山市、淮北市、铜陵市、安庆市、黄山市、滁州市、阜阳市、宿州市、六安市、亳州市、池州市、宣城市'
 Anhui_cities = cities.split('、')
 tmp = []
-with open(r'D:\python_repo\homework\11\hw\da.csv','r') as f:
+with open(r'da.csv','r') as f:
     reader = csv.reader(f)
     for line in reader:
         tmp.append(line)
